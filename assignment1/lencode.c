@@ -148,10 +148,15 @@ int main(int argc, char **argv)
     if (n > 0) {
         curEpoch = 1;
         nextIndex = 0;
+        int pendingReset = 0;                  /* reset on next character step */
         int p = buf[0];                       /* current phrase, starts as 1 char */
 
         for (size_t i = 1; i < n; i++) {
             int c = buf[i];
+            if (pendingReset) {
+                dict_reset();
+                pendingReset = 0;
+            }
             int key = (p << 7) | c;
             int child = ht_lookup(key);
             if (child >= 0) {                 /* p+c is in the dictionary: extend */
@@ -159,7 +164,8 @@ int main(int argc, char **argv)
             } else {                          /* mismatch: emit p, then add p+c   */
                 emit(p);
                 if (nextIndex == DICT_SIZE) {
-                    dict_reset();             /* full: reset and restart fresh     */
+                    /* full: reset only after output for processed chars emitted */
+                    pendingReset = 1;
                     p = c;
                 } else {
                     int e = nextIndex++;

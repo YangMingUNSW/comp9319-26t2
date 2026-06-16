@@ -98,6 +98,7 @@ static void out_byte(int b)
 /* ---- encoder automaton state (driven by the recovered characters) ------ */
 static int  p;          /* current phrase node */
 static int  started;    /* have we consumed the first character yet?        */
+static int  pendingReset;
 
 /* Run one encoder step for character c, emitting c as reconstructed output
  * and updating the dictionary exactly as the encoder did. */
@@ -109,13 +110,17 @@ static void feed_char(int c)
         started = 1;
         return;
     }
+    if (pendingReset) {
+        dict_reset();
+        pendingReset = 0;
+    }
     int key = (p << 7) | c;
     int child = ht_lookup(key);
     if (child >= 0) {
         p = child + NODE_BASE;
     } else {
         if (nextIndex == DICT_SIZE) {
-            dict_reset();
+            pendingReset = 1;
             p = c;
         } else {
             int e = nextIndex++;
@@ -167,11 +172,18 @@ int main(int argc, char **argv)
 
     /* a phrase can be at most DICT_SIZE+1 characters long; +2 for KwKwK */
     unsigned char *tmp = malloc(DICT_SIZE + 8);
-    if (!tmp) { fprintf(stderr, "out of memory\n"); fclose(fo); free(buf); return 1; }
+    if (!tmp) {
+        fprintf(stderr, "out of memory\n");
+        fclose(fo);
+        free(buf);
+        free(tmp);
+        return 1;
+    }
 
     curEpoch = 1;
     nextIndex = 0;
     started = 0;
+    pendingReset = 0;
 
     for (size_t i = 0; i < n; ) {
         int b0 = buf[i++];
