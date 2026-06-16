@@ -15,19 +15,25 @@
 - 当字典**写满**时，需要**重置 (reset)** 字典，然后像从头开始一样继续编码。
 - 重置只在「目前已处理输入对应的全部输出码都已发出之后」才发生
   （*The reset occurs only after all output codes for the input processed so far have been emitted.*）。
+- **正确性硬要求（round-trip）**：`ldecode` 的输出必须与 `lencode` 的原始输入**逐字节完全一致**，即 `原文 → lencode → ldecode → 原文` 无损还原。这是评测的底线，任何不一致都算错。
 
 ---
 
 ## 2. 输入 / 输出格式 (I/O Format)
 
-编码后的文件采用**变长**字节格式：
+编码后的文件采用**混合 1 字节 / 2 字节 token** 的格式：
 
-| 内容类型 | 编码方式 | 最高位 (MSB) |
+| 内容类型 | 编码方式 | 标志位 |
 |----------|----------|--------------|
-| ASCII 字符 | 单字节存储 | `0` |
-| 字典索引 (dictionary index) | 两字节存储 | `1` |
+| ASCII 字符 | 单字节存储 | 该字节最高位 = `0`，其余 7 位是 ASCII 码 |
+| 字典索引 (dictionary index) | 两字节存储 | **高字节**最高位 = `1`，其余 15 位是索引 |
 
-- 读取时，**最高有效字节 (most significant byte) 先读**。
+**解码判定方式（精确）**：先读 **1 个字节**，看它的最高位 ——
+- 最高位为 `0` → 它本身就是一个 ASCII 字符（直接用低 7 位）。
+- 最高位为 `1` → 它是索引的**高字节**，需再读下一个字节，两字节拼成 16 位后**去掉最高位标志**，得到 15-bit 索引（`((b0 & 0x7F) << 8) | b1`）。
+
+> ⚠️ 注意：标志位只在**高字节**的最高位上；**低字节不受约束**（不是"两个字节最高位都为 1"）。读取时高字节（most significant byte）先读。
+
 - 假设输入文件可以包含**任意 7-bit ASCII 字符**。
 
 ### 字节示例
@@ -54,6 +60,12 @@
 - 字典满（32,768 条）时，在加入新条目**之前**重置。
 - 重置前必须先把当前已处理输入对应的所有输出码发出。
 - 重置后从头开始构建字典继续编码。
+
+### 3.3 索引地址空间
+
+- 字典索引**从 0 开始**编号（例：`^W = 0`、`WE = 1` …）。
+- **单个 ASCII 字符不占用字典索引空间** —— 它们按字面字节输出（题面：*excluding those entries for the individual ASCII characters*）。
+- 因此这 32,768 个索引**只用于多字符序列**，与 ASCII 字符的字节表示是**两套独立的地址空间**，互不共享。
 
 ---
 
@@ -134,9 +146,18 @@ give cs9319 a1 lencode.cpp ldecode.cpp
 
 ### 编译命令 (评测时在 CSE Linux 机器上)
 
+C 版本（`.c`）用 `gcc`：
+
 ```bash
 gcc -o lencode lencode.c
 gcc -o ldecode ldecode.c
+```
+
+C++ 版本（`.cpp`）用 `g++`：
+
+```bash
+g++ -o lencode lencode.cpp
+g++ -o ldecode ldecode.cpp
 ```
 
 ---
