@@ -1,0 +1,18 @@
+# Claude Code local session / memory data
+.claude/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
