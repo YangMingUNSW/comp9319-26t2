@@ -1,5 +1,7 @@
 # Claude Code local session / memory data
-.claude/
+.claude/*
+# ...but keep the shared, cross-platform permission allow-list in git
+!.claude/settings.json
 
 # LaTeX build artifacts
 *.aux

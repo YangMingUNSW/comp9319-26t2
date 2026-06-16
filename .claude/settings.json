@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wsl:*)",
+      "Bash(gcc:*)",
+      "Bash(g++:*)",
+      "Bash(make:*)",
+      "Bash(cc:*)",
+      "Bash(diff:*)",
+      "Bash(cmp:*)",
+      "Bash(xxd:*)",
+      "Bash(od:*)",
+      "Bash(mkdir:*)",
+      "Bash(printf:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Read",
+      "Write",
+      "Edit"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
