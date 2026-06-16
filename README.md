@@ -13,7 +13,13 @@ course unchanged.
 
 Each deliverable lives in its own top-level folder, named for what it actually is —
 e.g. `assignment1/`, `project1/`, `project/` — added as the course progresses.
-(There is no assignment in here yet; add folders as the course gives them out.)
+Everything for one deliverable (solution code, the task spec, study notes, and any
+study-only reference material) lives inside that folder.
+
+- `assignment1/` — LZW encoder/decoder (`lencode.c` / `ldecode.c`). See its
+  [`README.md`](assignment1/README.md) for the design; `spec.md` is the task
+  writeup, `notes.md` the LZW study notes, and `reference/` holds study-only
+  external implementations.
 
 ## `claude-memory/`
 

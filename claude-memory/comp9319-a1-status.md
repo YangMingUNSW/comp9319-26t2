@@ -19,9 +19,11 @@ COMP9319 **2026T2 Assignment 1** = implement `lencode`/`ldecode` in C/C++ doing 
 
 **Permissions:** shared allow-list committed at `.claude/settings.json` (wsl/gcc/g++/diff/git…); machine-local extras stay in gitignored `.claude/settings.local.json`. Fully-unattended runs still need the user to set Claude Code's permission mode to "bypass permissions" (Shift+Tab) — Claude cannot set that itself.
 
-In-repo artifacts:
-- `COMP9319-2026T2-Assignment1.md` — full spec writeup + repo comparison.
-- `LEARNING-NOTES.md` — LZW algorithm notes, study path, self-check list.
-- `reference/` — cloned ass1 dirs (study only; already in MOSS/Turnitin): `VegasFlower-2023T2/` is the ⭐main reference (15-bit/2-byte/≥3-char format **identical** to this term, but lacks dictionary reset); `SongyuQi-2025T3/` and `dioxyq-25T3/` are 22-bit **variable-length** (format INCOMPATIBLE with this term) kept only for reset-logic ideas, autotest/automark scripts, and reusable `.txt` test inputs. Their `.lzw`/`.bin` expected outputs are NOT valid to diff against a 2026 encoder; verify via round-trip on `.txt` instead.
+In-repo artifacts — everything A1 now lives under `assignment1/` (consolidated 2026-06-17):
+- `assignment1/lencode.c`, `assignment1/ldecode.c` — the solution.
+- `assignment1/README.md` — solution design/build/submit notes.
+- `assignment1/spec.md` — full spec writeup + repo comparison (was top-level `COMP9319-2026T2-Assignment1.md`).
+- `assignment1/notes.md` — LZW algorithm notes, study path, self-check list (was top-level `LEARNING-NOTES.md`).
+- `assignment1/reference/` — cloned ass1 dirs (study only; already in MOSS/Turnitin): `VegasFlower-2023T2/` is the ⭐main reference (15-bit/2-byte/≥3-char format **identical** to this term, but lacks dictionary reset); `SongyuQi-2025T3/` and `dioxyq-25T3/` are 22-bit **variable-length** (format INCOMPATIBLE with this term) kept only for reset-logic ideas, autotest/automark scripts, and reusable `.txt` test inputs. Their `.lzw`/`.bin` expected outputs are NOT valid to diff against a 2026 encoder; verify via round-trip on `.txt` instead.
 
 When the solution starts, follow [[solution-file-convention]] and place it per the per-deliverable folder rule in [[comp9319-repo]].

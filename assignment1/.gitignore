@@ -1,9 +1,10 @@
-# compiled binaries
-lencode
-ldecode
-# test / scratch files
-*.enc
-*.lzw
-*.dec
-*.out
-t.in
+# Build artifacts and scratch files in THIS folder only (the leading "/"
+# anchors each pattern to assignment1/, so tracked files under reference/
+# are not affected).
+/lencode
+/ldecode
+/*.enc
+/*.lzw
+/*.dec
+/*.out
+/t.in

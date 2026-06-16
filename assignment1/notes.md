@@ -1,8 +1,7 @@
 # COMP9319 Assignment 1 — LZW 学习笔记
 
-> 配套文件：题目整理见 [`COMP9319-2026T2-Assignment1.md`](./COMP9319-2026T2-Assignment1.md)；参考源码见 [`reference/`](./reference/)。
+> 配套文件：题目整理见 [`spec.md`](./spec.md)；参考源码见 [`reference/`](./reference/)；本期解答见 [`lencode.c`](./lencode.c) / [`ldecode.c`](./ldecode.c) 与 [`README.md`](./README.md)。
 > ⚠️ 本笔记仅用于**理解算法**。参考源码均来自公开仓库（已在 MOSS/Turnitin 查重库中），**不可照抄**，需自行实现。
-> 📌 本笔记不含本期 assignment 的解答代码 —— 尚未开始写作业。
 
 ---
 
@@ -90,7 +89,7 @@ for each 编码单元 (1或2字节):
 
 ## 5. 学习路径（建议顺序）
 
-1. **手推例子**：用题面 `^WED^WE^WEE^WEB^WET`，照 §4 表（在 `COMP9319-2026T2-Assignment1.md`）逐步推出每个字节。
+1. **手推例子**：用题面 `^WED^WE^WEE^WEB^WET`，照 §4 表（在 `spec.md`）逐步推出每个字节。
 2. **精读编码**：`VegasFlower-2023T2/lencode.c`，确认每行对应 §2 骨架。
 3. **精读解码**：`VegasFlower-2023T2/ldecode.c`，重点 KwKwK + 双向字典。
 4. **理解 reset**：读 `SongyuQi-2025T3/*.cpp`，搞懂「输出残余 → 重置字典 → 继续」的流程。
