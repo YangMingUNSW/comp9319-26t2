@@ -1,13 +1,19 @@
 # COMP9319
 
 Coursework for **COMP9319 — Web Data Compression and Search** (UNSW).
-This repository is used as a personal cross-platform workspace for all
-assignments and projects in the course.
+A personal cross-platform workspace for everything in this course — assignments,
+projects, or any other written deliverable.
+
+This repo follows a reusable template (same framework as the COMP9312 repo): the
+Claude-Code memory handling, the Markdown solution files, and the LaTeX/Overleaf
+`pdf.md` files are all set up the same way so the workflow carries over to any new
+course unchanged.
 
 ## Structure
 
-Each assignment/project lives in its own top-level folder (e.g. `assignment1/`,
-`assignment2/`, `project/`), added as the course progresses.
+Each deliverable lives in its own top-level folder, named for what it actually is —
+e.g. `assignment1/`, `project1/`, `project/` — added as the course progresses.
+(There is no assignment in here yet; add folders as the course gives them out.)
 
 ## `claude-memory/`
 
@@ -19,7 +25,8 @@ project's absolute path on that machine).
 
 ## File naming convention
 
-For every assignment, each solution comes in two forms:
+For every deliverable (assignment **or** project), each written-up solution comes
+in two forms:
 
 - `*_solution.md` — readable Markdown solution.
 - `*_solution_pdf.md` — the same content as **LaTeX source**; copy the whole file
