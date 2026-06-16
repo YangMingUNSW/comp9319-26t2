@@ -1,0 +1,9 @@
+# compiled binaries
+lencode
+ldecode
+# test / scratch files
+*.enc
+*.lzw
+*.dec
+*.out
+t.in
