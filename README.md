@@ -6,7 +6,7 @@ projects, or any other written deliverable.
 
 This repo follows a reusable template (same framework as the COMP9312 repo): the
 Claude-Code memory handling, the Markdown solution files, and the LaTeX/Overleaf
-`pdf.md` files are all set up the same way so the workflow carries over to any new
+`.tex` files are all set up the same way so the workflow carries over to any new
 course unchanged.
 
 ## Structure
@@ -29,5 +29,6 @@ For every deliverable (assignment **or** project), each written-up solution come
 in two forms:
 
 - `*_solution.md` — readable Markdown solution.
-- `*_solution_pdf.md` — the same content as **LaTeX source**; copy the whole file
-  into Overleaf and compile to get the PDF for submission.
+- `<submission>.tex` — the same content as a real **LaTeX source** file (named to
+  match the submission PDF, e.g. `ass1_z1234567.tex`); upload it to Overleaf and
+  compile to get the PDF for submission.
