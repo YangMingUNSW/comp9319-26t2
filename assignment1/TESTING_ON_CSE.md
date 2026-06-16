@@ -1,45 +1,47 @@
-# COMP9319 A1 Testing Guide on CSE
+# COMP9319 A1 在 CSE 上测试指南（中文）
 
-This guide is for testing your `lencode`/`ldecode` on UNSW CSE Linux before final submission.
+这份文档用于你在 UNSW CSE Linux 上验证 `lencode` / `ldecode`，再提交作业。
 
-## 1) Login and go to your folder
+## 1）登录 CSE 并进入作业目录
 
 ```bash
 ssh zID@login.cse.unsw.edu.au
 cd /path/to/your/assignment1
 ```
 
-## 2) Build binaries
+> 把 `zID` 和路径改成你自己的。
 
-For C:
+## 2）先编译程序
+
+如果你交 C 版本（`.c`）：
 
 ```bash
 gcc -O2 -Wall -Wextra -std=c11 -o lencode lencode.c
 gcc -O2 -Wall -Wextra -std=c11 -o ldecode ldecode.c
 ```
 
-For C++ (if you submit `.cpp`):
+如果你交 C++ 版本（`.cpp`）：
 
 ```bash
 g++ -O2 -Wall -Wextra -std=c++17 -o lencode lencode.cpp
 g++ -O2 -Wall -Wextra -std=c++17 -o ldecode ldecode.cpp
 ```
 
-## 3) Run official sanity test
+## 3）跑官方 sanity test（最低要求）
 
 ```bash
 ~cs9319/a1/autotest
 ```
 
-This is the minimum check you should pass before submitting.
+这一步是最基础的检查，提交前建议至少通过它。
 
-## 4) Run round-trip checks (must-pass)
+## 4）做 round-trip 验证（最关键）
 
-The assignment's core correctness requirement is:
+题目最核心要求是：
 
-`source -> lencode -> ldecode -> source` (byte-identical)
+`原文件 -> lencode -> ldecode -> 原文件`，且输出必须逐字节完全一致。
 
-Example:
+示例：
 
 ```bash
 ./lencode ~cs9319/a1/test1.txt test1.enc
@@ -47,60 +49,44 @@ Example:
 diff ~cs9319/a1/test1.txt test1.dec
 ```
 
-No `diff` output means pass.
+如果 `diff` 没有任何输出，就表示这组通过。
 
-## 5) Validate encoding format quickly
+## 5）快速检查编码格式
 
 ```bash
 xxd -b test1.enc | head
 ```
 
-You should see:
+你应该能看到：
 
-- regular ASCII bytes with MSB 0
-- dictionary index tokens as 2 bytes with MSB 1 on the high byte
+- 普通 ASCII 字符对应字节通常是最高位 `MSB=0`
+- 字典索引是 2 字节表示，且高字节最高位 `MSB=1`
 
-## 6) Performance and larger inputs
+## 6）性能与大文件测试（避免被卡 5 秒）
 
-Each single test has a 5-second limit in marking.
+评测里单个测试超过 5 秒会被终止，所以要额外测：
 
-So test at least:
+- 重复模式数据（看压缩与查找是否稳定）
+- 随机 7-bit ASCII 数据（看鲁棒性）
+- 接近 1MB 的输入（看性能上限）
 
-- repetitive pattern files
-- random 7-bit ASCII files
-- larger files close to 1MB
+这能更早发现「字典查找过慢」或「字典满后 reset 同步错误」。
 
-This helps catch slow dictionary lookup and reset bugs.
+## 7）提交前最终检查
 
-## 7) Use the provided one-shot script
-
-This repo includes `extra_tests/cse_verify.sh`, which automates:
-
-- compile
-- official sanity test (`~cs9319/a1/autotest`, if available)
-- round-trip checks on provided and generated files
-- per-case runtime checks against a 5s threshold
-
-Run:
-
-```bash
-chmod +x extra_tests/cse_verify.sh
-./extra_tests/cse_verify.sh
-```
-
-## 8) Final submission check
+先检查你当前提交内容：
 
 ```bash
 9319 classrun -check a1
 ```
 
-Then submit:
+再提交：
 
 ```bash
 give cs9319 a1 lencode.c ldecode.c
 ```
 
-or:
+或者（C++）：
 
 ```bash
 give cs9319 a1 lencode.cpp ldecode.cpp
