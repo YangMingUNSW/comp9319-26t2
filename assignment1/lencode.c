@@ -148,6 +148,7 @@ int main(int argc, char **argv)
     if (n > 0) {
         curEpoch = 1;
         nextIndex = 0;
+        int resetPending = 0;                 /* defer reset until next emit */
         int p = buf[0];                       /* current phrase, starts as 1 char */
 
         for (size_t i = 1; i < n; i++) {
@@ -158,8 +159,13 @@ int main(int argc, char **argv)
                 p = child + NODE_BASE;
             } else {                          /* mismatch: emit p, then add p+c   */
                 emit(p);
-                if (nextIndex == DICT_SIZE) {
+                if (resetPending) {
                     dict_reset();
+                    resetPending = 0;
+                    p = c;
+                } else if (nextIndex == DICT_SIZE) {
+                    /* dictionary is full: defer reset until next emitted phrase */
+                    resetPending = 1;
                     p = c;
                 } else {
                     int e = nextIndex++;
