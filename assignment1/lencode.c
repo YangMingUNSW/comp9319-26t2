@@ -153,29 +153,31 @@ int main(int argc, char **argv)
 
         for (size_t i = 1; i < n; i++) {
             int c = buf[i];
+            if (resetPending) {
+                /* Emit the carried phrase before reset; then restart fresh. */
+                emit(p);
+                dict_reset();
+                resetPending = 0;
+                p = c;
+                continue;
+            }
             int key = (p << 7) | c;
             int child = ht_lookup(key);
             if (child >= 0) {                 /* p+c is in the dictionary: extend */
                 p = child + NODE_BASE;
             } else {                          /* mismatch: emit p, then add p+c   */
                 emit(p);
-                if (resetPending) {
-                    dict_reset();
-                    resetPending = 0;
-                    p = c;
-                } else {
-                    if (nextIndex < DICT_SIZE) {
-                        int e = nextIndex++;
-                        ent_parent[e] = p;
-                        ent_char[e]   = (unsigned char)c;
-                        ent_first[e]  = (unsigned char)node_first(p);
-                        ent_len[e]    = node_len(p) + 1;
-                        ht_insert(key, e);
-                        if (nextIndex == DICT_SIZE)
-                            resetPending = 1;
-                    }
-                    p = c;
+                if (nextIndex < DICT_SIZE) {
+                    int e = nextIndex++;
+                    ent_parent[e] = p;
+                    ent_char[e]   = (unsigned char)c;
+                    ent_first[e]  = (unsigned char)node_first(p);
+                    ent_len[e]    = node_len(p) + 1;
+                    ht_insert(key, e);
+                    if (nextIndex == DICT_SIZE)
+                        resetPending = 1;
                 }
+                p = c;
             }
         }
         emit(p);                              /* flush the final phrase           */

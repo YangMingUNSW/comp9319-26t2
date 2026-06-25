@@ -110,28 +110,28 @@ static void feed_char(int c)
         started = 1;
         return;
     }
+    if (resetPending) {
+        dict_reset();
+        resetPending = 0;
+        p = c;                                 /* fresh-file restart state */
+        return;
+    }
     int key = (p << 7) | c;
     int child = ht_lookup(key);
     if (child >= 0) {
         p = child + NODE_BASE;
     } else {
-        if (resetPending) {
-            dict_reset();
-            resetPending = 0;
-            p = c;
-        } else {
-            if (nextIndex < DICT_SIZE) {
-                int e = nextIndex++;
-                ent_parent[e] = p;
-                ent_char[e]   = (unsigned char)c;
-                ent_first[e]  = (unsigned char)node_first(p);
-                ent_len[e]    = node_len(p) + 1;
-                ht_insert(key, e);
-                if (nextIndex == DICT_SIZE)
-                    resetPending = 1;
-            }
-            p = c;
+        if (nextIndex < DICT_SIZE) {
+            int e = nextIndex++;
+            ent_parent[e] = p;
+            ent_char[e]   = (unsigned char)c;
+            ent_first[e]  = (unsigned char)node_first(p);
+            ent_len[e]    = node_len(p) + 1;
+            ht_insert(key, e);
+            if (nextIndex == DICT_SIZE)
+                resetPending = 1;
         }
+        p = c;
     }
 }
 
