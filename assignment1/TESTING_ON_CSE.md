@@ -37,24 +37,24 @@ gcc -o ldecode ldecode.c
 核心要求：`原文件 -> lencode -> ldecode -> 原文件`，逐字节完全一致（spec 第 11–18 行）。
 
 ```bash
-./lencode ~cs9319/a1/test1.txt test1.encoded
-./ldecode test1.encoded test1.decoded
-diff ~cs9319/a1/test1.txt test1.decoded
+./lencode ~cs9319/a1/test7.txt test7.encoded
+./ldecode test7.encoded test7.decoded
+diff ~cs9319/a1/test7.txt test7.decoded
 ```
 
-`diff` 没有任何输出就表示这组通过。官方提供 `test1`–`test7`，可逐个替换文件名测一遍。
+`diff` 没有任何输出就表示这组通过。若你当前主要在排查 `test7`，建议优先固定测它。
 
 也可以顺便验证你的编码结果和官方 `.lzw` 一致：
 
 ```bash
-./lencode ~cs9319/a1/test1.txt test1.encoded
-diff test1.encoded ~cs9319/a1/test1.lzw
+./lencode ~cs9319/a1/test7.txt test7.encoded
+diff test7.encoded ~cs9319/a1/test7.lzw
 ```
 
 ## 5）检查编码格式
 
 ```bash
-xxd -b test1.encoded | head
+xxd -b test7.encoded | head
 ```
 
 应能看到（spec 第 20 行）：
