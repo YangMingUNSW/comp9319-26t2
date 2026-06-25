@@ -8,3 +8,9 @@
 /*.dec
 /*.out
 /t.in
+
+# Compiled binaries inside the cse-test scratch folder (keep sources + test data)
+/cse-test/lenc
+/cse-test/ldec
+/cse-test/lencode
+/cse-test/ldecode
