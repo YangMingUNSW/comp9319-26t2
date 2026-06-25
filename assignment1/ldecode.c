@@ -119,16 +119,17 @@ static void feed_char(int c)
             dict_reset();
             resetPending = 0;
             p = c;
-        } else if (nextIndex == DICT_SIZE) {
-            resetPending = 1;
-            p = c;
         } else {
-            int e = nextIndex++;
-            ent_parent[e] = p;
-            ent_char[e]   = (unsigned char)c;
-            ent_first[e]  = (unsigned char)node_first(p);
-            ent_len[e]    = node_len(p) + 1;
-            ht_insert(key, e);
+            if (nextIndex < DICT_SIZE) {
+                int e = nextIndex++;
+                ent_parent[e] = p;
+                ent_char[e]   = (unsigned char)c;
+                ent_first[e]  = (unsigned char)node_first(p);
+                ent_len[e]    = node_len(p) + 1;
+                ht_insert(key, e);
+                if (nextIndex == DICT_SIZE)
+                    resetPending = 1;
+            }
             p = c;
         }
     }
