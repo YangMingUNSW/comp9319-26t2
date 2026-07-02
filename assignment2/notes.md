@@ -147,4 +147,20 @@ makefile 要求同时产出 `bwtdecode`,但正文没写它的行为。**几乎�
 
 ---
 
-*生成日期:2026-07-02。当前阶段:资料整理与学习,尚未开始编写 assignment。*
+*生成日期:2026-07-02。当前阶段:**解答已实现并本地验证通过**(`bwtsearch.c` /
+`bwtdecode.c` / `bwt.c` / `bwt.h` / `makefile`)。*
+
+---
+
+## 8. 本期实现的关键决策(已完成)
+
+- **不解码整段 BWT**:只保存「每 S 字节一个累计计数检查点」(约 5 万个 ≈ 2MB),
+  查询时从文件按需重扫一小段 RLE。文件用 `stdio` 读(**非 mmap**),字节留在 OS
+  page cache,**不计入** massif `--pages-as-heap` 的 16MB。
+- **后向上下文不走 ψ**:对 `P·c1`、`P·c1·c2` 各做一次 backward search,把 `[sp,ep]`
+  切成「后缀相同」的子区间 → 复杂度 O(模式长度) 而非 O(匹配数×长度)。
+- **前向上下文走 LF**:每个匹配 ≤2 步,`\n` 即序列边界(遇到就停,不输出、不环绕)。
+- **`bwtdecode`**:用 `psi`(LF 逆)**正向流式**重建,逐字符输出,内存有界。
+- 本地用 spec 的 `xxd -b` 复原出 20 字节 `dna-tiny.rbwt`,四个 worked example 全对;
+  随机 + 重复 DNA(含 >32 长行程)约 3900 次搜索对拍暴力参考 **0 失败**,decode 往返一致。
+- **待办(须在 CSE 上)**:db-perftest 编译、`dsearch`/`autotest` 对拍、massif 验内存。

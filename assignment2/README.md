@@ -3,9 +3,42 @@
 Search a **run-length-encoded BWT** DNA file (`.rbwt`) using **FM-index backward
 search**, printing each match with up to 2 characters of context on each side.
 
-> **Status: study / preparation phase.** Spec and learning notes are ready;
-> `bwtsearch.c` / `bwtdecode.c` are **not started yet**. See [`notes.md`](./notes.md)
-> for the algorithm study path and [`spec.md`](./spec.md) for the task.
+> **Status: solution implemented & locally verified.** `bwtsearch.c`,
+> `bwtdecode.c`, `bwt.c`/`bwt.h` and the `makefile` are done and pass all spec
+> examples plus randomized brute-force stress tests (see below). Still to do on
+> CSE: build on **db-perftest**, `dsearch`/`autotest` diff, and massif memory
+> check. See [`notes.md`](./notes.md) for the algorithm and [`spec.md`](./spec.md)
+> for the task.
+
+## Files
+
+| File | Role |
+|---|---|
+| `bwt.h` / `bwt.c` | shared FM-index over the RLE BWT: sampled checkpoints (~2MB) + on-demand file reads; `fm_rank`, `fm_access`, `fm_select`, `fm_fchar` |
+| `bwtsearch.c` | backward search → `[sp,ep]`; preceding context via LF, following context via extended searches (`P·c1`, `P·c1·c2`) that partition the interval |
+| `bwtdecode.c` | forward reconstruction via `psi` (streamed, memory-bounded) → prints original DNA |
+| `makefile` | builds both `bwtsearch` and `bwtdecode` |
+
+### Design notes (why it fits the constraints)
+
+- **Never decodes the whole BWT.** The decoded BWT can dwarf the ≤110MB `.rbwt`,
+  so the index keeps only cumulative-count checkpoints every `S` bytes (~50k
+  checkpoints ≈ 2MB) and re-scans a short RLE span from the file per query.
+- **File bytes are read via stdio, not `mmap`**, so they live in the OS page
+  cache and are *not* counted by `massif --pages-as-heap=yes`. Measured RSS on a
+  200k-char test was ~1.6MB.
+- **No `select`/ψ in `bwtsearch`'s hot path.** Following context is obtained by
+  searching `P·c1` and `P·c1·c2`, which partition `[sp,ep]` into sub-intervals
+  sharing the same trailing chars — O(pattern_len) work, not O(matches·len).
+- **Writes no files.**
+
+### Local verification (in this repo's build)
+
+`dna-tiny.rbwt` was reconstructed from the spec's `xxd -b` dump (20 bytes) and
+all worked examples reproduce exactly (`TGAACTT`→`ACTGAACTTAC`; `ACTGAC`→4 lines;
+`ACT`→ the 6-line `dsearch` output; `bwtdecode`→ the original text). A randomized
+harness (~3900 searches over random + repetitive DNA, incl. runs >32) matched a
+brute-force reference with **0 failures**, and decode round-trips were exact.
 
 ## Task at a glance
 

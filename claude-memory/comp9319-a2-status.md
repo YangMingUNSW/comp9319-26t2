@@ -60,10 +60,35 @@ index file → FORBIDDEN this term (study idea only). **KEY GAP: none decode the
 `.rbwt`** (all read plain `.bwt`) — must add RLE layer yourself, like A1's references
 all lacked the reset. See `reference/README.md` for the full study guide.
 
-**Current phase (as of 2026-07-02): STUDY / PREP DONE — solution NOT started.**
-In-repo `assignment2/` holds `spec.md`, `notes.md` (Chinese FM-index study notes +
-self-check), `README.md`, `.gitignore`, `reference/`. User will run implementation
-from WSL. Next step (on user's go): implement `bwtsearch.c`/`bwtdecode.c` + makefile,
-then round-trip vs `dsearch`. Follow [[solution-file-convention]] and the
-per-deliverable folder rule in [[comp9319-repo]]. Mirrors [[comp9319-a1-status]]'s
-prep structure.
+**Current phase (as of 2026-07-02): SOLUTION IMPLEMENTED & LOCALLY VERIFIED.**
+In-repo `assignment2/` now has the full solution: `bwt.h`/`bwt.c` (shared FM-index),
+`bwtsearch.c`, `bwtdecode.c`, `makefile`, plus `spec.md`, `notes.md`, `README.md`,
+`.gitignore`, `reference/`.
+
+**Design (what was built):** FM-index over the RLE BWT that NEVER decodes the whole
+BWT. Keeps only cumulative-count **checkpoints every S bytes** (`S=fileSize/50000`,
+min 32; ~50k checkpoints ≈ 2MB) and re-scans a short RLE span from the file per
+query via `fm_rank`/`fm_access`/`fm_select`/`fm_fchar`. File read with **stdio, not
+mmap**, so bytes sit in OS page cache and DON'T count toward massif `--pages-as-heap`
+(measured RSS ~1.6MB on a 200k-char test). `bwtsearch`: backward search → `[sp,ep]`;
+**preceding** context via LF (≤2 steps/match); **following** context via extended
+searches for `P·c1` and `P·c1·c2` that partition `[sp,ep]` into sub-intervals sharing
+trailing chars → O(pattern_len), NOT O(matches·len), and needs NO select/ψ in the hot
+path. `\n` = sequence boundary (stop, never wrap, never print it). `bwtdecode`:
+forward streamed reconstruction via `psi` (LF-inverse), memory-bounded. Writes no
+files. C code, `-O2 -Wall -std=c11`.
+
+**Verification done locally (WSL):** rebuilt exact 20-byte `dna-tiny.rbwt` from the
+spec `xxd -b` dump; all 4 worked examples reproduce EXACTLY (`TGAACTT`→`ACTGAACTTAC`;
+`ACTGAC`→4 lines; `ACT`→the 6-line dsearch output; decode→original text). Randomized
+harness ~3900 searches over random + repetitive DNA (incl. runs >32 split across
+bytes) vs brute-force reference = **0 failures**; decode round-trips exact. Hand-
+verified LF/Occ formulas on the full dna-tiny inverse BWT.
+
+**Still TODO on CSE (couldn't do from WSL):** (1) `make` on **db-perftest**; (2)
+diff vs `~cs9319/a2/dsearch` on real `.txt`/`.rbwt` pairs + `~cs9319/a2/autotest`;
+(3) `valgrind --tool=massif --pages-as-heap=yes` to confirm <16MB on a large (~110MB)
+`.rbwt` (valgrind not installed locally); (4) confirm `bwtdecode` CLI matches the
+sample makefile's expected usage (implemented as `bwtdecode <rbwt>` → stdout).
+Follow [[solution-file-convention]] and the per-deliverable folder rule in
+[[comp9319-repo]]. Mirrors [[comp9319-a1-status]]'s structure.
