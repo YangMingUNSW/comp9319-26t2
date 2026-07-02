@@ -1,0 +1,12 @@
+# Build artifacts and scratch files in THIS folder only (leading "/" anchors
+# each pattern to assignment2/).
+/bwtsearch
+/bwtdecode
+/*.o
+/*.out
+/memory.out
+/memory.txt
+/*.rbwt
+/*.bwt
+/*.txt
+/t.in

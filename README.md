@@ -34,6 +34,7 @@ study-only reference material — lives inside that folder.
 | Folder · 文件夹 | Contents · 内容 |
 | --- | --- |
 | [`assignment1/`](assignment1/) | **15-bit LZW encoder / decoder** in C (`lencode.c` / `ldecode.c`).<br>**15-bit LZW 编码 / 解码器**(C 语言)。<br>设计说明见 [`assignment1/README.md`](assignment1/README.md);`spec.md` 为题面,`notes.md` 为 LZW 学习笔记,`reference/` 为仅供学习的外部实现。 |
+| [`assignment2/`](assignment2/) | **BWT backward search** over run-length-encoded BWT DNA files (`bwtsearch` / `bwtdecode`).<br>**BWT 反向搜索**:在行程编码的 BWT DNA 文件(`.rbwt`)上做 FM-index 检索。<br>题面见 [`assignment2/spec.md`](assignment2/spec.md),学习笔记见 [`assignment2/notes.md`](assignment2/notes.md)(当前为资料整理阶段,解答尚未开始)。 |
 | [`claude-memory/`](claude-memory/) | Claude Code 跨机记忆镜像(见下方说明)。 |
 
 ### Build & Run · 编译与运行
