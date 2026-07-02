@@ -1,6 +1,6 @@
 # COMP9319 Assignment 2 — BWT 反向搜索 学习笔记
 
-> 配套文件:题目整理见 [`spec.md`](./spec.md);本期解答见 [`bwtsearch.c`](./bwtsearch.c) / [`bwtdecode.c`](./bwtdecode.c) 与 [`README.md`](./README.md)。
+> 配套文件:题目整理见 [`spec.md`](./spec.md);外部参考(仅供学习)见 [`reference/`](./reference/);本期解答见 [`bwtsearch.c`](./bwtsearch.c) / [`bwtdecode.c`](./bwtdecode.c) 与 [`README.md`](./README.md)。
 > ⚠️ 本笔记仅用于**理解算法**,提交代码必须自行实现(会查重)。
 
 ---
