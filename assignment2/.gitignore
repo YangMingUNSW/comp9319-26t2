@@ -10,3 +10,10 @@
 /*.bwt
 /*.txt
 /t.in
+
+# Compiled binaries inside the cse-test scratch folder (keep the results there:
+# *.out / *.ref / memory.txt / time.txt are tracked on purpose)
+/cse-test/bwtsearch
+/cse-test/bwtdecode
+/cse-test/*.rbwt
+/cse-test/*.bwt

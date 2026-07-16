@@ -66,9 +66,16 @@ make                              # builds bwtsearch and bwtdecode
 
 ## Testing
 
+Step-by-step guide (Chinese): [`TESTING_ON_CSE.md`](./TESTING_ON_CSE.md) — covers the
+three zero-mark red lines (16 MB / 5 s / no file writes). Results are archived per
+commit hash under [`cse-test/`](./cse-test/).
+
 - `~cs9319/a2/autotest` — sanity check on `dna-tiny.rbwt` (formatting only).
 - `~cs9319/a2/dsearch <dna.txt> <term>` — reference answers on the **plaintext**;
   your `.rbwt` output must match (ignoring order — both get sorted).
+- Memory (< 16 MB) via `valgrind --tool=massif --pages-as-heap=yes` + `ms_print`;
+  time (< 5 s) via `/usr/bin/time` — **both must be measured on `db-perftest`,
+  with the largest test file.**
 
 ## Submit
 
