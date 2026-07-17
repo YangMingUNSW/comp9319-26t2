@@ -239,12 +239,20 @@ were settled by reading the official page and `~cs9319/a2` directly on CSE.
   fabricated** — the string `decode` appears **zero times** on the official page.
   The page says "generate the executable program (i.e., **bwtsearch**)", the
   official sample makefile only has `all: bwtsearch`, and all 8 `autotest` tests
-  only invoke `bwtsearch`. The likely origin of the error: the page's one stray
-  phrase "each of **the two programs**" (a leftover it never resolves) was
-  inferred into a second program and written down as fact. `bwtdecode.c` in this
-  repo is therefore **not required**; it is kept only as a cheap hedge against
-  that "two programs" ambiguity, and it costs nothing (it compiles clean and
-  peaks at 6.98MB under massif).
+  only invoke `bwtsearch`. `bwtdecode.c` has been **deleted** from this repo
+  (recoverable from git history), together with the `fm_select` / `fm_fchar` /
+  `nlPos` index members that existed solely to serve it.
+
+  **Origin of the error, confirmed:** `reference/anantkm-BWT/Specification.md` is
+  an **older term's** A2 handout, and that assignment genuinely required *two*
+  programs — "create **two programs**: a search program called bwtsearch ...; and
+  a decoder program called bwtdecode ... generate the executable programs
+  (bwtsearch and bwtdecode)". This term's page is a revision of that older one,
+  which is why the stray phrase "each of **the two programs**" survives in it even
+  though only `bwtsearch` is ever defined. An earlier draft of this file conflated
+  that reference handout with the real 2026T2 page and recorded `bwtdecode` as a
+  requirement. **The handouts under `reference/` are different assignments from
+  different terms — never treat them as this term's spec.**
 - **`< mytest.in` never existed either.** ⚠️ Also fabricated: the official massif
   example is `./bwtsearch ~/a2/dna-small.rbwt ACTG` — a normal CLI argument, no
   stdin redirect. There was never a stdin question to answer.

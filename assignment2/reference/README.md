@@ -1,5 +1,15 @@
 # reference/ — 仅供学习的外部参考(BWT backward search)
 
+> ## ⚠️ 这些是**往年**的题面,不是本期的
+>
+> `anantkm-BWT/Specification.md` 是**旧学期**的 A2:它要求**两个程序**
+> (`bwtsearch` **和 `bwtdecode`**)、搜的是**明文 `.bwt`**、`bwtdecode` 还要**写输出文件**。
+> **本期(2026T2)只有 `bwtsearch` 一个程序、搜 RLE 编码的 `.rbwt`、且禁止写任何文件。**
+>
+> 这个区别曾经真的把人坑了:早先的 `spec.md` 把旧题面混进了本期题面,凭空捏造出
+> 「makefile 必须产出 `bwtdecode`」的要求,导致整个 `bwtdecode.c` 白写(2026-07-17 已更正,
+> 见 [`../spec.md`](../spec.md) §7)。**只学这里的算法思路,任何「要求」一律以官方页面为准。**
+
 > ⚠️ **学术诚信**:本目录代码全部来自 GitHub 公开仓库,已在 UNSW MOSS/Turnitin 查重库中。
 > **仅用于理解 FM-index / backward search 算法、复用测试数据、学习测试方法**。直接复制 = 学术不端。
 > 📌 这里**不是**我的 assignment 解答 —— 本期作业尚未开始编写。
@@ -40,7 +50,8 @@
   - `occuranceOfChar()` —— `Occ`/rank 的**采样 + 局部扫**实现(内存友好的关键)。
   - `c_table[]` —— `C[]` 表构建。
   - 主循环 `first = c_table[c] + occ(...); last = c_table[c] + occ(...) - 1;` —— **backward search 骨架**,和 `notes.md` §2 对得上。
-- `bwtdecode.c`:逆 BWT 还原原文(LF-mapping 连续跳);本期 `bwtdecode` 用法待 CSE 确认,可参考其整体流程。
+- `bwtdecode.c`:逆 BWT 还原原文(LF-mapping 连续跳)。⚠️ **本期没有 `bwtdecode` 这个程序** —— 它属于
+  往年题面。见下方警告。
 - `Specification.md`:是**旧版**题面(明文 BWT,无 RLE),对比本期看差异即可。
 
 ### `z5248093-2023T2/`

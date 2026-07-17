@@ -1,11 +1,11 @@
 # cse-test
 
-存放每次在 **CSE db-perftest** 上运行 `bwtsearch` / `bwtdecode` 得到的测试**输出结果**。
+存放每次在 **CSE db-perftest** 上运行 `bwtsearch` 得到的测试**输出结果**。
 
 ## 约定
 
 - 这里**只放 CSE 的测试结果**，不放源码。
-  源码（`bwtsearch.c` / `bwtdecode.c` / `makefile`）只在 `assignment2/` 根目录保留一份，
+  源码（`bwtsearch.c` / `bwt.c` / `bwt.h` / `makefile`）只在 `assignment2/` 根目录保留一份，
   开发改动都在那里进行。
 - 每次从 CSE 复制回来的一批结果，单独放进一个**以代码 commit hash 命名的子文件夹**，
   例如 `9a918e8`。这个 hash 就是「生成这批结果的那份代码」所在的提交。

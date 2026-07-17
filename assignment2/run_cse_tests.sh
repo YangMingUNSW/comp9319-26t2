@@ -43,7 +43,7 @@ esac
 
 section "1. OFFICIAL TEST MATERIAL IN $A2"
 # This is what settles the spec's open questions: the sample makefile's expected
-# targets, how autotest invokes things, and bwtdecode's real usage.
+# targets and how autotest invokes the program.
 run ls -lL "$A2"
 echo "--- sample makefile (spec says to base ours on it):"
 for f in "$A2"/makefile "$A2"/Makefile; do
@@ -62,8 +62,8 @@ echo "largest .rbwt = $BIG"
 section "2. COMPILE (red line: any compile error = 0 for the whole assignment)"
 run make clean
 run make
-echo "--- both executables must exist:"
-run ls -l bwtsearch bwtdecode
+echo "--- the executable must exist:"
+run ls -l bwtsearch
 
 section "3. OFFICIAL autotest (formatting/argument sanity on dna-tiny)"
 if [ -x "$A2/autotest" ]; then
@@ -81,32 +81,14 @@ else
     echo "SKIP: ./crosscheck.sh missing"
 fi
 
-section "5. bwtdecode (usage is a guess: implemented as 'bwtdecode <rbwt>' -> stdout)"
-# Compare against the plaintext .txt where a pair exists. If the sample makefile
-# or autotest above shows a different CLI, that overrides this.
-for rbwt in "$A2"/*.rbwt; do
-    txt="${rbwt%.rbwt}.txt"
-    [ -f "$txt" ] || continue
-    sz=$(stat -Lc%s "$txt")
-    [ "$sz" -gt 20000000 ] && { echo "skip $(basename "$rbwt") (txt ${sz}B, too big to diff here)"; continue; }
-    if ./bwtdecode "$rbwt" 2>/dev/null | cmp -s - "$txt"; then
-        echo "PASS decode $(basename "$rbwt") == $(basename "$txt")"
-    else
-        echo "FAIL decode $(basename "$rbwt") != $(basename "$txt")"
-        ./bwtdecode "$rbwt" 2>&1 | head -c 120 | sed 's/^/     got: /'; echo
-        head -c 120 "$txt" | sed 's/^/     exp: /'; echo
-    fi
-done
-
-section "6. MEMORY / massif (red line: >=16MB = 0 for those tests)"
-# Spec's own command form, including its odd '< mytest.in' stdin redirect (the
-# search term is a CLI arg, so stdin is unused; /dev/null stands in for it).
+section "5. MEMORY / massif (red line: >=16MB = 0 for those tests)"
+# The spec's own command form: ./bwtsearch ~/a2/dna-small.rbwt ACTG
 for target in "$SMALL" "$BIG"; do
     [ -f "$target" ] || continue
     [ "$target" = "$BIG" ] && [ "$SMALL" = "$BIG" ] && continue   # same file, ran it already
     echo "--- massif on $(basename "$target") ($(stat -Lc%s "$target") bytes)"
     valgrind --tool=massif --pages-as-heap=yes --massif-out-file="$OUT_DIR/memory.out" \
-        ./bwtsearch "$target" ACGTACGT < /dev/null > /dev/null 2>"$OUT_DIR/massif.err"
+        ./bwtsearch "$target" ACGTACGT > /dev/null 2>"$OUT_DIR/massif.err"
     echo "[valgrind exit=$?]"; head -3 "$OUT_DIR/massif.err"
     peak=$(grep '^mem_heap_B=' "$OUT_DIR/memory.out" 2>/dev/null | cut -d= -f2 | sort -n | tail -1)
     if [ -n "${peak:-}" ]; then
@@ -117,16 +99,8 @@ $( [ "$peak" -lt "$LIMIT_BYTES" ] && echo PASS || echo FAIL )"
     fi
     ms_print "$OUT_DIR/memory.out" > "$OUT_DIR/memory-$(basename "$target").txt" 2>&1
 done
-echo "--- the limit applies to EACH program, so bwtdecode too:"
-if [ -f "$SMALL" ]; then
-    valgrind --tool=massif --pages-as-heap=yes --massif-out-file="$OUT_DIR/memory-decode.out" \
-        ./bwtdecode "$SMALL" > /dev/null 2>&1
-    peak=$(grep '^mem_heap_B=' "$OUT_DIR/memory-decode.out" 2>/dev/null | cut -d= -f2 | sort -n | tail -1)
-    echo "bwtdecode PEAK = ${peak:-?} bytes | limit $LIMIT_BYTES | \
-$( [ -n "${peak:-}" ] && [ "$peak" -lt "$LIMIT_BYTES" ] && echo PASS || echo CHECK )"
-fi
 
-section "7. TIME (red line: >5s user+system per search = 0 for that test)"
+section "6. TIME (red line: >5s user+system per search = 0 for that test)"
 if [ -f "$BIG" ]; then
     echo "--- largest file, several term lengths (user+system is what is marked):"
     for term in A ACGTACGT ACGTACGTACGTACGT; do
@@ -138,7 +112,7 @@ if [ -f "$BIG" ]; then
     echo "      slow/heavy result there is out of scope - judge by the longer terms."
 fi
 
-section "8. NO FILE WRITES (red line: writing any file = 0 for the whole assignment)"
+section "7. NO FILE WRITES (red line: writing any file = 0 for the whole assignment)"
 if command -v strace > /dev/null; then
     echo "--- any open for write / create? (expect none)"
     strace -f -e trace=openat,open,creat,unlink,rename ./bwtsearch "$SMALL" ACGTACGT 2>&1 > /dev/null \
@@ -147,12 +121,11 @@ if command -v strace > /dev/null; then
     echo "[end of write-syscall list - empty above means PASS]"
 else
     echo "strace unavailable; falling back to a directory diff:"
-    before=$(ls -a); ./bwtsearch "$SMALL" ACGTACGT > /dev/null; ./bwtdecode "$SMALL" > /dev/null
-    after=$(ls -a)
+    before=$(ls -a); ./bwtsearch "$SMALL" ACGTACGT > /dev/null; after=$(ls -a)
     [ "$before" = "$after" ] && echo "PASS: no files created in cwd" || { echo "FAIL: cwd changed:"; diff <(echo "$before") <(echo "$after"); }
 fi
 
-section "9. SUMMARY"
+section "8. SUMMARY"
 echo "Transcript saved to: $TRANSCRIPT"
 echo "Paste the WHOLE transcript back for review."
 echo "Reminder: run 'give'/'classrun' on a NORMAL CSE machine, not db-perftest."

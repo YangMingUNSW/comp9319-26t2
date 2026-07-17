@@ -1,7 +1,7 @@
 /*
  * bwt.h - FM-index over a run-length-encoded BWT (.rbwt) DNA file.
  *
- * COMP9319 2026T2 Assignment 2. Shared by bwtsearch and bwtdecode.
+ * COMP9319 2026T2 Assignment 2.
  *
  * The index never holds the decoded BWT (which can be far larger than the
  * <=110MB .rbwt).  It keeps only sampled "checkpoints" of cumulative character
@@ -34,7 +34,6 @@ typedef struct {
     long long n;           /* total decoded BWT length                     */
     long long count[5];    /* total counts by code A,C,G,T,\n              */
     long long C[5];        /* FM-index C[] by code                         */
-    long long nlPos;       /* BWT position of the single '\n'              */
     unsigned char *rbuf;   /* reusable read buffer of size S (+slack)      */
 } FMIndex;
 
@@ -48,11 +47,5 @@ long long fm_rank(FMIndex *fm, int c, long long i);
 
 /* Code (0..4) of the BWT character at position i. */
 int fm_access(FMIndex *fm, long long i);
-
-/* Position of the k-th (1-based) occurrence of code c (0..3) in the BWT. */
-long long fm_select(FMIndex *fm, int c, long long k);
-
-/* Code of the F-column (first column) character at row i. */
-int fm_fchar(FMIndex *fm, long long i);
 
 #endif /* BWT_H */

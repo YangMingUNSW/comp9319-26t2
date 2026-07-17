@@ -1,6 +1,6 @@
 # COMP9319 Assignment 2 — BWT 反向搜索 学习笔记
 
-> 配套文件:题目整理见 [`spec.md`](./spec.md);外部参考(仅供学习)见 [`reference/`](./reference/);本期解答见 [`bwtsearch.c`](./bwtsearch.c) / [`bwtdecode.c`](./bwtdecode.c) 与 [`README.md`](./README.md)。
+> 配套文件:题目整理见 [`spec.md`](./spec.md);外部参考(仅供学习)见 [`reference/`](./reference/);本期解答见 [`bwtsearch.c`](./bwtsearch.c) 与 [`README.md`](./README.md)。
 > ⚠️ 本笔记仅用于**理解算法**,提交代码必须自行实现(会查重)。
 
 ---
@@ -110,11 +110,12 @@ for i = len-2 down to 0:
 
 ---
 
-## 5. `bwtdecode` 是什么?
+## 5. ~~`bwtdecode` 是什么?~~ —— 不存在,已证伪
 
-makefile 要求同时产出 `bwtdecode`,但正文没写它的行为。**几乎肯定**是
-`bwtdecode <rbwt>` → 还原并打印原始 DNA(RBWT → BWT → 逆 BWT → 明文)。
-**上 CSE 看 `~cs9319/a2` 的 sample makefile / autotest 确认确切用法**再动手。
+**本节原先的内容是错的。** 曾以为「makefile 要求同时产出 `bwtdecode`」,
+2026-07-17 在 CSE 上核对官方页面:`decode` 一词出现 **0 次**,官方 sample makefile
+只有 `all: bwtsearch`,8 个 autotest 也全都只调 `bwtsearch`。
+**这个程序从来不存在**,详见 [`spec.md`](./spec.md) §7。
 
 ---
 
@@ -141,14 +142,13 @@ makefile 要求同时产出 `bwtdecode`,但正文没写它的行为。**几乎�
 - [ ] **不写任何文件**(含临时文件)
 - [ ] 110MB 文件下内存 < 16MB(massif 验证)
 - [ ] 单次搜索 < 5s(`/usr/bin/time` 验证)
-- [ ] `make` 能在 db-perftest 上编出 `bwtsearch` 和 `bwtdecode`,无报错
-- [ ] `bwtdecode` 用法已在 CSE 上确认
+- [x] `make` 能在 db-perftest 上编出 `bwtsearch`,无报错
 - [ ] 代码可读性(命名/注释)—— 影响 mark scaling
 
 ---
 
 *生成日期:2026-07-02。当前阶段:**解答已实现并本地验证通过**(`bwtsearch.c` /
-`bwtdecode.c` / `bwt.c` / `bwt.h` / `makefile`)。*
+`bwt.c` / `bwt.h` / `makefile`)。2026-07-17 已在 db-perftest 上全部验证通过。*
 
 ---
 
@@ -160,7 +160,6 @@ makefile 要求同时产出 `bwtdecode`,但正文没写它的行为。**几乎�
 - **后向上下文不走 ψ**:对 `P·c1`、`P·c1·c2` 各做一次 backward search,把 `[sp,ep]`
   切成「后缀相同」的子区间 → 复杂度 O(模式长度) 而非 O(匹配数×长度)。
 - **前向上下文走 LF**:每个匹配 ≤2 步,`\n` 即序列边界(遇到就停,不输出、不环绕)。
-- **`bwtdecode`**:用 `psi`(LF 逆)**正向流式**重建,逐字符输出,内存有界。
 - 本地用 spec 的 `xxd -b` 复原出 20 字节 `dna-tiny.rbwt`,四个 worked example 全对;
   随机 + 重复 DNA(含 >32 长行程)约 3900 次搜索对拍暴力参考 **0 失败**,decode 往返一致。
 - **待办(须在 CSE 上)**:db-perftest 编译、`dsearch`/`autotest` 对拍、massif 验内存。

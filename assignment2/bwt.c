@@ -60,7 +60,6 @@ int fm_build(FMIndex *fm, const char *path) {
     long long cnt[4] = {0, 0, 0, 0};
     long long total[5] = {0, 0, 0, 0, 0};
     long long ncp = 0;
-    fm->nlPos = -1;
 
     long long off = 0;
     size_t got;
@@ -80,7 +79,6 @@ int fm_build(FMIndex *fm, const char *path) {
             long long len = (b & 0x1F) + 1;
             total[code] += len;
             if (code < 4) cnt[code] += len;
-            else if (fm->nlPos < 0) fm->nlPos = pos;   /* first (only) '\n' */
             pos += len;
         }
         off += (long long)got;
@@ -144,37 +142,4 @@ int fm_access(FMIndex *fm, long long i) {
         pos += len;
     }
     return -1;   /* unreachable for valid i */
-}
-
-long long fm_select(FMIndex *fm, int c, long long k) {
-    /* Largest checkpoint j with cumulative count of c < k. */
-    long long lo = 0, hi = fm->numCP - 1, j = 0;
-    while (lo <= hi) {
-        long long mid = (lo + hi) / 2;
-        if (fm->cps[mid].c[c] < k) { j = mid; lo = mid + 1; }
-        else hi = mid - 1;
-    }
-    long long pos = fm->cps[j].pos;
-    long long cnt = fm->cps[j].c[c];
-    long long got = read_span(fm, j * fm->S);
-
-    for (long long x = 0; x < got; x++) {
-        unsigned char b = fm->rbuf[x];
-        int code = b >> 5;
-        long long len = (b & 0x1F) + 1;
-        if (code == c) {
-            if (cnt + len >= k) return pos + (k - cnt - 1);
-            cnt += len;
-        }
-        pos += len;
-    }
-    return -1;   /* unreachable for valid k */
-}
-
-int fm_fchar(FMIndex *fm, long long i) {
-    if (i < fm->C[0]) return 4;   /* [0, C[A]) is the \n bucket */
-    if (i < fm->C[1]) return 0;
-    if (i < fm->C[2]) return 1;
-    if (i < fm->C[3]) return 2;
-    return 3;
 }

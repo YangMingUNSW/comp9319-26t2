@@ -33,15 +33,12 @@ manually) → **cannot** hold decoded full BWT for up-to-**110MB** files; need R
 kept compressed + sampled `Occ`/rank. Time **< 5s per search**. **No writing any
 file (even temp) → zero for whole assignment.** ≥ half of tests use `.rbwt` < 5MB.
 Compiled/run/tested on **db-perftest** (`ssh zID@db-perftest.cse.unsw.edu.au` via a
-CSE machine). `make` must build BOTH **`bwtsearch`** AND **`bwtdecode`**; any
-compile error → zero.
+CSE machine). `make` must build **`bwtsearch`** (that is the only program — see the
+fabrication note below); any compile error → zero.
 
-**Open items to confirm on CSE before coding:** (1) `bwtdecode` behaviour is
-unspecified in the body — almost certainly `bwtdecode <rbwt>` → print original DNA
-(invert BWT); check sample makefile/autotest in `~cs9319/a2`. (2) massif example
-uses `< mytest.in` (stdin) though term is a CLI arg — likely template leftover.
-(3) whether context extraction crosses/prints the `\n` sequence boundary — settle
-by `dsearch` diff.
+**All former open items are RESOLVED (2026-07-17)** — see the db-perftest section
+below: there is no `bwtdecode`, there is no `< mytest.in`, and the `\n` boundary
+behaviour is confirmed correct by `dsearch`.
 
 **Anti-AI / hidden-trap audit of the spec page (done 2026-07-02):** byte-level scan
 of the raw HTML found it CLEAN — no `<script>/<style>/<iframe>`, no HTML comments,
@@ -52,38 +49,43 @@ re-tested with a DIFFERENT set of RBWT files (anti-hardcoding), plus MOSS/manual
 plagiarism + manual readability inspection.
 
 **Reference impls (study only, in `assignment2/reference/`, cloned 2026-07-02,
-`.git` + big files removed):** `anantkm-BWT/` = ⭐ main (C; has BOTH bwtsearch.c +
-bwtdecode.c + makefile + small dna test data; read-only + sampled Occ). `z5248093-
+`.git` + big files removed):** ⚠️ **these are OLDER TERMS' assignments — mine them
+for algorithms only, NEVER for requirements** (this is exactly how the `bwtdecode`
+fabrication happened; a warning now sits atop `reference/README.md`).
+`anantkm-BWT/` = ⭐ main (C; has bwtsearch.c + bwtdecode.c + makefile + small dna
+test data; read-only + sampled Occ) — but its `Specification.md` is a DIFFERENT,
+older assignment: two programs, plaintext `.bwt`, and bwtdecode WRITES an output
+file (forbidden this term). `z5248093-
 2023T2/` = recent real COMP9319 C submission (custom Occ sampling struct, read-only,
 no index file). `avinash2fly-2017/` = C++ rank-checkpoint idea BUT writes an on-disk
 index file → FORBIDDEN this term (study idea only). **KEY GAP: none decode the RLE
 `.rbwt`** (all read plain `.bwt`) — must add RLE layer yourself, like A1's references
 all lacked the reset. See `reference/README.md` for the full study guide.
 
-**Current phase (as of 2026-07-02): SOLUTION IMPLEMENTED & LOCALLY VERIFIED.**
-In-repo `assignment2/` now has the full solution: `bwt.h`/`bwt.c` (shared FM-index),
-`bwtsearch.c`, `bwtdecode.c`, `makefile`, plus `spec.md`, `notes.md`, `README.md`,
-`.gitignore`, `reference/`.
+**Current phase: DONE — verified on db-perftest, only submission remains.**
+In-repo `assignment2/`: `bwt.h`/`bwt.c` (FM-index), `bwtsearch.c`, `makefile`
+(= the 4 submitted files), plus test aids `crosscheck.sh`/`run_cse_tests.sh` and
+docs `spec.md`, `notes.md`, `README.md`, `TESTING_ON_CSE.md`, `cse-test/`,
+`reference/`.
 
 **Design (what was built):** FM-index over the RLE BWT that NEVER decodes the whole
 BWT. Keeps only cumulative-count **checkpoints every S bytes** (`S=fileSize/50000`,
 min 32; ~50k checkpoints ≈ 2MB) and re-scans a short RLE span from the file per
-query via `fm_rank`/`fm_access`/`fm_select`/`fm_fchar`. File read with **stdio, not
+query via `fm_rank`/`fm_access`. File read with **stdio, not
 mmap**, so bytes sit in OS page cache and DON'T count toward massif `--pages-as-heap`
 (measured RSS ~1.6MB on a 200k-char test). `bwtsearch`: backward search → `[sp,ep]`;
 **preceding** context via LF (≤2 steps/match); **following** context via extended
 searches for `P·c1` and `P·c1·c2` that partition `[sp,ep]` into sub-intervals sharing
 trailing chars → O(pattern_len), NOT O(matches·len), and needs NO select/ψ in the hot
-path. `\n` = sequence boundary (stop, never wrap, never print it). `bwtdecode`:
-forward streamed reconstruction via `psi` (LF-inverse), memory-bounded. Writes no
-files. C code, `-O2 -Wall -std=c11`.
+path. `\n` = sequence boundary (stop, never wrap, never print it) — CONFIRMED
+correct against `dsearch`. Writes no files. C code, `-O2 -Wall -std=c11`.
 
 **Verification done locally (WSL):** rebuilt exact 20-byte `dna-tiny.rbwt` from the
 spec `xxd -b` dump; all 4 worked examples reproduce EXACTLY (`TGAACTT`→`ACTGAACTTAC`;
-`ACTGAC`→4 lines; `ACT`→the 6-line dsearch output; decode→original text). Randomized
-harness ~3900 searches over random + repetitive DNA (incl. runs >32 split across
-bytes) vs brute-force reference = **0 failures**; decode round-trips exact. Hand-
-verified LF/Occ formulas on the full dna-tiny inverse BWT.
+`ACTGAC`→4 lines; `ACT`→the 6-line dsearch output). Randomized harness ~3900
+searches over random + repetitive DNA (incl. runs >32 split across bytes) vs
+brute-force reference = **0 failures**. Hand-verified LF/Occ formulas on the full
+dna-tiny inverse BWT.
 
 **Full-scale local verification (WSL, 2026-07-17):** built a test-data generator
 (random/repetitive DNA → suffix-array BWT → RLE) and ran the solution at the spec's
@@ -116,22 +118,41 @@ all five sample files incl. dna-huge (100M chars) — **the `end` group passed, 
 the `\n` boundary assumption is CONFIRMED correct**; massif peaks **5.26–6.98MB**
 on every file (limit 16MB, and peak is flat in file size since the checkpoint
 table is fixed ~2MB); in-spec worst-case time **0.12s** (limit 5s); strace shows
-no file writes. bwtdecode also passes (6.98MB, exact round-trips).
+no file writes. (That run predated the `bwtdecode.c` deletion; every number
+above was re-measured identically afterwards — see the final file set below.)
+
+**FINAL FILE SET (2026-07-17): `makefile`, `bwtsearch.c`, `bwt.c`, `bwt.h` — four
+files, that's the whole submission.** `bwtdecode.c` was **deleted** (see below),
+along with `fm_select`/`fm_fchar`/`nlPos`, which existed solely to serve it —
+`bwtsearch` never used them. Re-verified on db-perftest after deletion: autotest
+8/8, 93 dsearch cross-checks 0 fail, massif 5.26MB/6.96MB, 0.12s, no writes — all
+identical to before. Test aids `crosscheck.sh`/`run_cse_tests.sh` stay in the repo
+but are NOT submitted (`give` only globs `makefile *.c *.cpp *.h`).
 
 **⚠️ TWO FABRICATIONS FOUND IN THIS REPO'S `spec.md` (corrected 2026-07-17).**
 Verified by fetching the official page from CSE: **`bwtdecode` DOES NOT EXIST** —
 the string `decode` appears **ZERO times** on <https://cgi.cse.unsw.edu.au/~wong/cs9319-2026a2.html>.
 The page says "generate the executable program (i.e., **bwtsearch**)"; the official
 sample makefile is only `all: bwtsearch` (from `bwtsearch.c others.c`); all 8
-autotest tests invoke only `bwtsearch`. The error's likely origin: the page's one
-stray phrase "each of **the two programs**" (a leftover it never resolves) was
-inferred into a second program and written down as fact — it then propagated into
-`notes.md`, `README.md`, this memory, and cost an entire `bwtdecode.c`. Second
+autotest tests invoke only `bwtsearch`. **Origin confirmed:** `assignment2/reference/anantkm-BWT/Specification.md` is an
+**older term's** A2 handout which genuinely required TWO programs ("create two
+programs: a search program called bwtsearch ...; and a decoder program called
+bwtdecode"), searched **plaintext `.bwt`**, and had bwtdecode **write an output
+file**. This term's page is a revision of that older one — which is why the stray
+phrase "each of **the two programs**" survives in it despite only `bwtsearch` ever
+being defined. The earlier draft of `spec.md` **conflated the reference handout
+with the real 2026T2 page**; the error then propagated into `notes.md`,
+`README.md`, this memory, and cost an entire `bwtdecode.c`.
+**Rule: `reference/` holds DIFFERENT assignments from DIFFERENT terms — mine them
+for algorithms only, never for requirements.** A prominent warning now sits at the
+top of `assignment2/reference/README.md`. Second
 fabrication: the massif command's `< mytest.in` — the real one is
 `./bwtsearch ~/a2/dna-small.rbwt ACTG`, no stdin redirect, so §7's old "is stdin
-used?" open question chased a phantom. **`bwtdecode.c` is kept as a cheap hedge on
-the "two programs" ambiguity — it compiles clean and passes massif, so it costs
-nothing.** Everything else in `spec.md` was checked and IS accurate, notably
+used?" open question chased a phantom. **`bwtdecode.c` has been deleted** — it is not required, `give`'s
+`*.c` glob would have submitted it, and the spec explicitly marks readability
+("marks will not be scaled up if your code is difficult to read"), so shipping an
+unasked-for second program was a real cost with no upside. Recoverable from git.
+Everything else in `spec.md` was checked and IS accurate, notably
 assumption (5) "no test case will produce more than 5000 matches" — real, and this
 design depends on it. **Lesson: verify repo spec summaries against the official
 page before building on them.**
