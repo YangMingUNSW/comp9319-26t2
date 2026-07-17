@@ -105,7 +105,48 @@ both limits blown. **Safe only because spec assumption 5 guarantees ≤5000 matc
 per test case.** A cheap hardening (stream matches instead of buffering f1/f2, or
 cap) would remove the dependence on that guarantee.
 
-**Still TODO on CSE (cannot be done from WSL):** (1) `make` on **db-perftest**
+**★ VERIFIED ON db-perftest 2026-07-17 — ALL TESTS PASS, NOTHING OUTSTANDING.**
+Ran from WSL over SSH (key installed via `ssh-copy-id`; hop with
+`ssh -J z5565446@login.cse.unsw.edu.au z5565446@db-perftest.cse.unsw.edu.au`).
+Work dir on CSE: `~/Desktop/9319/Assignment2` (home is NFS-shared, so files copied
+via login.cse are visible on db-perftest). Full results archived in
+`assignment2/cse-test/2afc8e3/results.md`. Summary: `make` clean (gcc 12.2.0);
+**official autotest 8/8 CORRECT**; **93 `dsearch` cross-checks 0 failures** across
+all five sample files incl. dna-huge (100M chars) — **the `end` group passed, so
+the `\n` boundary assumption is CONFIRMED correct**; massif peaks **5.26–6.98MB**
+on every file (limit 16MB, and peak is flat in file size since the checkpoint
+table is fixed ~2MB); in-spec worst-case time **0.12s** (limit 5s); strace shows
+no file writes. bwtdecode also passes (6.98MB, exact round-trips).
+
+**⚠️ TWO FABRICATIONS FOUND IN THIS REPO'S `spec.md` (corrected 2026-07-17).**
+Verified by fetching the official page from CSE: **`bwtdecode` DOES NOT EXIST** —
+the string `decode` appears **ZERO times** on <https://cgi.cse.unsw.edu.au/~wong/cs9319-2026a2.html>.
+The page says "generate the executable program (i.e., **bwtsearch**)"; the official
+sample makefile is only `all: bwtsearch` (from `bwtsearch.c others.c`); all 8
+autotest tests invoke only `bwtsearch`. The error's likely origin: the page's one
+stray phrase "each of **the two programs**" (a leftover it never resolves) was
+inferred into a second program and written down as fact — it then propagated into
+`notes.md`, `README.md`, this memory, and cost an entire `bwtdecode.c`. Second
+fabrication: the massif command's `< mytest.in` — the real one is
+`./bwtsearch ~/a2/dna-small.rbwt ACTG`, no stdin redirect, so §7's old "is stdin
+used?" open question chased a phantom. **`bwtdecode.c` is kept as a cheap hedge on
+the "two programs" ambiguity — it compiles clean and passes massif, so it costs
+nothing.** Everything else in `spec.md` was checked and IS accurate, notably
+assumption (5) "no test case will produce more than 5000 matches" — real, and this
+design depends on it. **Lesson: verify repo spec summaries against the official
+page before building on them.**
+
+**Actual `~cs9319/a2` sample files** (the 110MB limit is about the DNA `.txt`, not
+the `.rbwt`): dna-tiny 20B/40B, dna-small 178KB/248KB, dna-medium 4.7MB/7.0MB,
+dna-large 15MB/25MB, dna-huge **58MB**/100MB. Also there: `autotest`, `dsearch`,
+`makefile`, `output/output{1..8}.txt` (autotest's expected answers).
+
+**Remaining (user's call, not blocked on testing):** submit via
+`give cs9319 a2 makefile *.c *.cpp *.h` then `9319 classrun -check a2`, **on a
+normal CSE machine (vx*/vlab), NOT db-perftest** — give/classrun do not exist
+there. Deadline Tue 28 July 2026 5:00pm AEST.
+
+**Superseded — the old TODO list (all now done):** (1) `make` on **db-perftest**
 (local `gcc 13.3 -O2 -Wall -std=c11` = clean, no warnings; plain C11, no GNU
 extensions, so low risk); (2) diff vs `~cs9319/a2/dsearch` on real `.txt`/`.rbwt`
 pairs + `~cs9319/a2/autotest` — **the one genuinely unverified semantic is the `\n`

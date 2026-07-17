@@ -166,18 +166,38 @@ for the whole assignment.**
 
 - Compiled/run/tested on **`db-perftest`** (`ssh zID@db-perftest.cse.unsw.edu.au`
   via a CSE Linux machine such as vlab).
-- Provide a **`makefile`**; a sample one is in `~cs9319/a2`. The makefile must
-  build the executables **`bwtsearch`** and **`bwtdecode`** on db-perftest. You
-  may use any C/C++ library available there.
+- Provide a **`makefile`**; a sample one is in `~cs9319/a2`. It must build the
+  executable **`bwtsearch`** on db-perftest ("generate the executable program
+  (i.e., bwtsearch)"). You may use any C/C++ library available there.
+  The official sample makefile is just:
+
+  ```makefile
+  CC=gcc
+  CFLAGS=-Wall
+  LDFLAGS=
+
+  .PHONY: all clean
+
+  all: bwtsearch
+
+  bwtsearch: bwtsearch.c others.c
+  	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+  clean:
+  	rm -f bwtsearch *.o
+  ```
 - Compiled with `make`. **Any compilation error → zero for the whole assignment.**
-- **Memory:** total runtime memory of *each* program (including footprint) is
-  assumed **always < 16 MB**, measured by:
+- **Memory:** "Total runtime memory of each of **the two programs** (including the
+  program footprint size) is assumed to be always less than 16MB", measured by:
 
   ```bash
   valgrind --tool=massif --pages-as-heap=yes --massif-out-file=memory.out \
-      ./bwtsearch ~/a2/dna-small.rbwt < mytest.in
+      ./bwtsearch ~/a2/dna-small.rbwt ACTG
   ms_print memory.out > memory.txt
   ```
+
+  > "the two programs" is the spec's own leftover — only `bwtsearch` is ever
+  > named or tested. See §7.
 
   `--pages-as-heap=yes` measures **all** memory used. Deliberately allocating to
   evade measurement is checked manually. Violating 16 MB → zero for those tests.
@@ -209,15 +229,42 @@ for the whole assignment.**
 
 ---
 
-## 7. Open questions / things to confirm on CSE
+## 7. Resolved on CSE (2026-07-17)
 
-- **`bwtdecode`**: §5 says the makefile must also build `bwtdecode`, but the body
-  only specifies `bwtsearch`'s behaviour. Almost certainly `bwtdecode <rbwt>`
-  reconstructs/prints the original DNA (RBWT → BWT → invert BWT → text). Confirm
-  the exact usage from the sample makefile / autotest in `~cs9319/a2`.
-- **`< mytest.in`** in the massif command suggests stdin might feed input, yet the
-  body says the search term is a command-line argument. Likely a template
-  leftover (stdin ignored); verify with `autotest`.
-- Character collation order for the FM-index `C[]` table: by ASCII value the order
-  is `\n`(10) < `A`(65) < `C`(67) < `G`(71) < `T`(84). Confirm the reference BWT
-  was built with this ordering (it matches the decoded `dna-tiny` example).
+All three items below were open questions in earlier drafts of this file. They
+were settled by reading the official page and `~cs9319/a2` directly on CSE.
+
+- **`bwtdecode` DOES NOT EXIST.** ⚠️ Earlier drafts of this file claimed §5
+  required the makefile to build both `bwtsearch` and `bwtdecode`. **That was
+  fabricated** — the string `decode` appears **zero times** on the official page.
+  The page says "generate the executable program (i.e., **bwtsearch**)", the
+  official sample makefile only has `all: bwtsearch`, and all 8 `autotest` tests
+  only invoke `bwtsearch`. The likely origin of the error: the page's one stray
+  phrase "each of **the two programs**" (a leftover it never resolves) was
+  inferred into a second program and written down as fact. `bwtdecode.c` in this
+  repo is therefore **not required**; it is kept only as a cheap hedge against
+  that "two programs" ambiguity, and it costs nothing (it compiles clean and
+  peaks at 6.98MB under massif).
+- **`< mytest.in` never existed either.** ⚠️ Also fabricated: the official massif
+  example is `./bwtsearch ~/a2/dna-small.rbwt ACTG` — a normal CLI argument, no
+  stdin redirect. There was never a stdin question to answer.
+- **Character collation order confirmed**: `\n`(10) < `A`(65) < `C`(67) < `G`(71)
+  < `T`(84), i.e. plain ASCII — verified by 93 `dsearch` cross-checks passing on
+  db-perftest across all five sample files.
+
+**Everything else in this file was checked against the official page and is
+accurate**, including the five assumptions in §4 (notably "(5) no test case will
+produce more than 5000 matches", which this solution's design depends on).
+
+### Actual sample files in `~cs9319/a2`
+
+| File | `.rbwt` size | `.txt` size |
+|---|---|---|
+| `dna-tiny` | 20 B | 40 B |
+| `dna-small` | 178 KB | 248 KB |
+| `dna-medium` | 4.7 MB | 7.0 MB |
+| `dna-large` | 15 MB | 25 MB |
+| `dna-huge` | 58 MB | 100 MB |
+
+The "110MB" limit in §5 is about the **DNA files**; the largest `.rbwt` actually
+provided is 58MB.
