@@ -85,10 +85,35 @@ harness ~3900 searches over random + repetitive DNA (incl. runs >32 split across
 bytes) vs brute-force reference = **0 failures**; decode round-trips exact. Hand-
 verified LF/Occ formulas on the full dna-tiny inverse BWT.
 
-**Still TODO on CSE (couldn't do from WSL):** (1) `make` on **db-perftest**; (2)
-diff vs `~cs9319/a2/dsearch` on real `.txt`/`.rbwt` pairs + `~cs9319/a2/autotest`;
-(3) `valgrind --tool=massif --pages-as-heap=yes` to confirm <16MB on a large (~110MB)
-`.rbwt` (valgrind not installed locally); (4) confirm `bwtdecode` CLI matches the
-sample makefile's expected usage (implemented as `bwtdecode <rbwt>` → stdout).
+**Full-scale local verification (WSL, 2026-07-17):** built a test-data generator
+(random/repetitive DNA → suffix-array BWT → RLE) and ran the solution at the spec's
+worst case. **112MB `.rbwt`** (150M-char DNA, at the 110MB limit): every search
+**0.26–0.28s user+sys** (limit 5s, ~19× margin) and **maxRSS 4.3MB** (limit 16MB).
+Cost is dominated by the one-pass build scan and is flat in pattern length (128-char
+term = same 0.26s as 7-char). Correctness re-confirmed at scale: 25 random searches
+on a 4M-char file and 12 searches with terms up to 128 chars on repetitive DNA, all
+0 failures vs brute force; plus the ~3900-search harness re-run 0 failures. Edge
+cases pass: start/end-of-sequence context, whole-sequence term, overlapping `AA` in
+`AAA`→2, 128-char term → 132-byte line (fits `line[160]`), missing/bad args → rc=1
+with **empty stdout** (usage only on stderr). No-file-writes re-confirmed by source
+scan (only `fopen(...,"rb")`; `fprintf` only to stderr) + before/after dir diff.
+
+**Known limit (within spec):** `bwtsearch` allocates `f1`/`f2` of `ep-sp+1` bytes
+each, so memory/time scale with match count. Measured on the 112MB file: 146k
+matches → 0.5s/4.2MB (fine), but a 1-char term (37M matches) → **91s / 76MB**, i.e.
+both limits blown. **Safe only because spec assumption 5 guarantees ≤5000 matches
+per test case.** A cheap hardening (stream matches instead of buffering f1/f2, or
+cap) would remove the dependence on that guarantee.
+
+**Still TODO on CSE (cannot be done from WSL):** (1) `make` on **db-perftest**
+(local `gcc 13.3 -O2 -Wall -std=c11` = clean, no warnings; plain C11, no GNU
+extensions, so low risk); (2) diff vs `~cs9319/a2/dsearch` on real `.txt`/`.rbwt`
+pairs + `~cs9319/a2/autotest` — **the one genuinely unverified semantic is the `\n`
+boundary** (local brute-force reference encodes the *same assumption* as the code, so
+it can't falsify it; the spec's `ACT`→`ACTGA` example confirms the start boundary
+only); (3) `valgrind --tool=massif --pages-as-heap=yes` to confirm <16MB (valgrind
+not installable locally — no sudo; maxRSS 4.3MB is a proxy, massif counts all mapped
+pages incl. libs so expect ~6–8MB, still under); (4) confirm `bwtdecode` CLI matches
+the sample makefile's expected usage (implemented as `bwtdecode <rbwt>` → stdout).
 Follow [[solution-file-convention]] and the per-deliverable folder rule in
 [[comp9319-repo]]. Mirrors [[comp9319-a1-status]]'s structure.

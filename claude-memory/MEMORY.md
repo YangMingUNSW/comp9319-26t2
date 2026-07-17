@@ -5,4 +5,4 @@
 - [Sync memory to repo](sync-memory-to-repo.md) — mirror CC memory files into the repo's `claude-memory/` for cross-platform memory continuity.
 - [Auto-push after changes](auto-push-after-changes.md) — commit + push to GitHub after every code/file change so the user can trace/rollback/debug.
 - [A1 (LZW) status](comp9319-a1-status.md) — 2026T2 Assignment 1 spec (15-bit LZW, reset-when-full), study phase only, solution NOT started; reference impls under reference/.
-- [A2 (BWT search) status](comp9319-a2-status.md) — 2026T2 Assignment 2 spec (bwtsearch: FM-index backward search over RLE-encoded BWT DNA, <16MB/<5s), study/prep phase, solution NOT started.
+- [A2 (BWT search) status](comp9319-a2-status.md) — 2026T2 Assignment 2 (bwtsearch: FM-index backward search over RLE-encoded BWT DNA, <16MB/<5s); solution implemented, verified at full 112MB scale locally (0.26s / 4.3MB); remaining checks need db-perftest.
