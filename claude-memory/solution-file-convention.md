@@ -1,16 +1,27 @@
 ---
 name: solution-file-convention
-description: Two-file output convention for every COMP9319 deliverable (assignment or project)
+description: COMP9319 deliverables are code / auto-marked (CSE) — source + tests, no .tex/_solution.md pair
 metadata:
   node_type: memory
   type: feedback
 ---
 
-For every COMP9319 written deliverable — assignment OR project — produce the solution in TWO files (do not delete the readable one):
+**COMP9319 deliverables are code / auto-marked, not written-up PDFs.** Every deliverable so far
+(assignment1 = 15-bit LZW `lencode`/`ldecode` in C; assignment2 = BWT backward search
+`bwtsearch` in C) is a programming task built and graded on **CSE**. The deliverable IS the
+**C source + any tests** in the deliverable folder — e.g. `lencode.c` / `ldecode.c`,
+`bwt.c` / `bwt.h` / `bwtsearch.c` + `makefile`, plus each folder's `spec.md`, `notes.md`, and
+`TESTING_ON_CSE.md`. There is **NO `<name>_solution.md` / `.tex` pair** — the Markdown + LaTeX
+"written solution" convention does **not** apply to this course.
 
-- `<name>_solution.md` — readable Markdown solution.
-- `<submission>.tex` — the SAME content as a full LaTeX document (`\documentclass … \end{document}`), as a real `.tex` file named to match the submission PDF (e.g. `ass1_z1234567.tex`), so the user can upload it to Overleaf and compile to PDF for submission.
+**Why:** the two-file (`_solution.md` + `.tex`) workflow only exists for human-graded PDF
+deliverables. COMP9319 has none of those; writing solution PDFs here would be dead files no
+grader reads. (An older version of this note framed it as "every deliverable" and the repo's
+`MEMORY.md` index even referenced a retired `_solution_pdf.md`; both were wrong for this course.)
 
-**Why:** the user submits PDFs built in Overleaf; using a true `.tex` file (not a `.md` that secretly holds LaTeX) removes the extension confusion and uploads cleanly. The `.tex` is the single source for the PDF — edit it to fix the PDF, then regenerate in Overleaf. This is the standing cross-platform writing workflow, reused for every new course. (Older repos used a `<name>_solution_pdf.md`; that pattern is retired.)
-
-**How to apply:** target Overleaf's default pdfLaTeX — use ASCII art inside `verbatim` (no Unicode box-drawing or `∞`), math mode for all complexities, and `\resizebox{\textwidth}{!}{…}` for wide tables. See [[comp9319-repo]].
+**How to apply:** focus on the C code's correctness and on verifying it on CSE — build with the
+provided `makefile`, run the provided autotest, and cross-check (e.g. round-trip byte-exact for
+LZW, `dsearch` cross-check for BWT) before submitting. Treat `reference/` as **study-only**
+past-term implementations, never port blindly. Keep each deliverable's source, `spec.md`,
+`notes.md`, and CSE test notes together in its folder. See [[comp9319-repo]],
+[[comp9319-a1-status]], [[comp9319-a2-status]].

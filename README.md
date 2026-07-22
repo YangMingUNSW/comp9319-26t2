@@ -14,9 +14,10 @@
 > **中文** — 这是 **COMP9319（Web 数据压缩与搜索）** 的个人作业仓库,跨平台同步课程里的作业、项目及一切书面产出。
 
 > 🧩 This repo follows the **same reusable template** as the COMP9312 / COMP9313 repos —
-> the Claude-Code memory handling and the Markdown + LaTeX solution layout carry over
-> to any new course unchanged.
-> 本仓库与 COMP9312 / COMP9313 共用**同一套可复用模板**(记忆管理、Markdown + LaTeX 解答布局),换课直接沿用。
+> the Claude-Code memory handling and the one-folder-per-deliverable layout carry over to any
+> new course unchanged. **This course's deliverables are all C code**, built and verified on
+> CSE — see the deliverable-type note below.
+> 本仓库与 COMP9312 / COMP9313 共用**同一套可复用模板**(记忆管理、每个交付物独立文件夹的布局),换课直接沿用。**本课交付物全部为 C 代码**,在 CSE 上编译并验证,详见下方「交付物类型」说明。
 
 ---
 
@@ -58,13 +59,15 @@ so prior context follows you across machines.
 跟随你。在新机器上 clone 后,把这些文件复制到 Claude Code 的项目记忆目录
 (`~/.claude/projects/<project-key>/memory/`,`project-key` 由该机器上的项目绝对路径推导)。
 
-## 📝 File Naming Convention · 文件命名约定
+## 📝 Deliverable Type · 交付物类型
 
-For every deliverable (assignment **or** project), each written-up solution comes in
-two forms —— 每个交付物(作业或项目)的书面解答都提供两种形式:
+Every COMP9319 deliverable is a **code / auto-marked** task built and graded on **CSE** — so the
+deliverable **is** the C source **+ its tests** in each folder (`lencode.c` / `ldecode.c`;
+`bwt.c` / `bwt.h` / `bwtsearch.c` + `makefile`), alongside each folder's `spec.md`, `notes.md`,
+and `TESTING_ON_CSE.md`. There is **no** `.tex` / `_solution.md` write-up pair — that Markdown +
+LaTeX solution convention applies only to human-graded PDF deliverables, and this course has none.
 
-- **`*_solution.md`** — readable Markdown solution · 可读的 Markdown 解答。
-- **`<submission>.tex`** — the same content as **LaTeX source**, named to match the
-  submission PDF (e.g. `ass1_z1234567.tex`); upload to Overleaf and compile to get the
-  PDF for submission · 同样内容的 **LaTeX 源文件**,文件名与提交 PDF 对应,上传 Overleaf
-  编译即得提交用 PDF。
+本课每个交付物都是**代码 / 自动评测**任务,在 **CSE** 上编译并评分——因此交付物**就是**各文件夹
+内的 **C 源码 + 测试**(`lencode.c` / `ldecode.c`;`bwt.c` / `bwt.h` / `bwtsearch.c` + `makefile`),
+连同各文件夹的 `spec.md`、`notes.md`、`TESTING_ON_CSE.md`。**没有** `.tex` / `_solution.md` 这一对
+书面解答文件——那套 Markdown + LaTeX 约定只用于人工评分的 PDF 交付物,而本课没有此类交付物。
